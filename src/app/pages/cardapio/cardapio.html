@@ -1,1 +1,60 @@
-<p>cardapio works!</p>
+<div class="min-h-screen bg-background pb-10">
+  <div class="bg-accent py-6 px-4 text-center mb-8">
+    <h1 class="text-2xl font-bold text-primary">Nosso Cardápio</h1>
+    <p class="text-gray-600 text-sm mt-1">Escolha seu salgado favorito</p>
+  </div>
+
+  <div class="container mx-auto px-4">
+    @if (carregando()) {
+      <div class="text-center py-10">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="text-gray-500 mt-2">Carregando cardápio...</p>
+      </div>
+    }
+
+    @if (erro()) {
+      <div class="bg-red-50 border border-danger text-danger rounded-lg p-4 text-center">
+        {{ erro() }}
+      </div>
+    }
+
+    @if (!carregando() && !erro()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (sabor of sabores(); track sabor.id) {
+          <div class="bg-white rounded-2xl shadow hover:shadow-md transition p-6 flex flex-col justify-between border-b-4"
+            [class.border-success]="!sabor.promocao"
+            [class.border-danger]="sabor.promocao">
+
+            <div>
+              <div class="flex justify-between items-start mb-3">
+                <h2 class="text-lg font-bold text-gray-800">{{ sabor.nome }}</h2>
+                @if (sabor.promocao) {
+                  <span class="bg-danger text-white text-xs px-2 py-1 rounded-full font-semibold">
+                    Promoção 20%
+                  </span>
+                }
+              </div>
+
+              <p class="text-2xl font-bold text-primary mb-1">
+                R$ {{ sabor.preco.toFixed(2) }}
+              </p>
+
+              <p class="text-sm text-gray-500">
+                <i class="bi bi-box me-1"></i>
+                {{ sabor.quantidadeEstoque }} unidades disponíveis
+              </p>
+            </div>
+
+            <button
+              (click)="adicionarAoCarrinho(sabor)"
+              [disabled]="sabor.quantidadeEstoque === 0"
+              class="mt-4 w-full bg-primary hover:opacity-90 text-white font-semibold py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed">
+              <i class="bi bi-cart-plus me-1"></i>
+              {{ sabor.quantidadeEstoque === 0 ? 'Sem estoque' : 'Adicionar ao carrinho' }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

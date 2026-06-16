@@ -1,1 +1,36 @@
-<p>navbar works!</p>
+<nav class="bg-primary text-white shadow-md">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🍗</span>
+      <span class="font-bold text-lg">Salgados</span>
+    </div>
+
+    <div class="flex items-center gap-6">
+      <a routerLink="/cardapio" routerLinkActive="border-b-2 border-accent"
+        class="hover:text-accent transition text-sm font-medium text-decoration-none text-white">
+        <i class="bi bi-grid me-1"></i> Cardápio
+      </a>
+      
+      <a routerLink="/carrinho" routerLinkActive="border-b-2 border-accent"
+        class="hover:text-accent transition text-sm font-medium text-decoration-none text-white">
+        <i class="bi bi-cart me-1"></i> Carrinho
+      </a>
+      
+      <a routerLink="/historico" routerLinkActive="border-b-2 border-accent"
+        class="hover:text-accent transition text-sm font-medium text-decoration-none text-white">
+        <i class="bi bi-clock-history me-1"></i> Histórico
+      </a>
+      
+      <span class="text-accent text-sm">
+        <i class="bi bi-person-circle me-1"></i>{{ authService.getNome() }}
+      </span>
+      
+      <button (click)="logout()"
+        class="bg-danger hover:opacity-90 text-white text-sm px-4 py-1 rounded-lg transition">
+        <i class="bi bi-box-arrow-right me-1"></i> Sair
+      </button>
+    </div>
+
+  </div>
+</nav>

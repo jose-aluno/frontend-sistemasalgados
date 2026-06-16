@@ -1,4 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import "tailwindcss";
-@import 'bootstrap/dist/css/bootstrap.min.css';
+
+@theme {
+  --color-primary: #246EB9;
+  --color-success: #4CB944;
+  --color-background: #FDFFFC;
+  --color-accent: #F5EE9E;
+  --color-danger: #F06543;
+}
+
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+body {
+  background-color: var(--color-background);
+}
