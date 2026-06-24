@@ -7,11 +7,11 @@ import { Auth } from '../../services/auth';
 @Component({
   selector: 'app-cadastro',
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './cadastro.html'
+  templateUrl: './cadastro.html',
+  styleUrl: './cadastro.css'
 })
 export class Cadastro {
   form: FormGroup;
-  // Estados convertidos para Signals
   erro = signal('');
   carregando = signal(false);
 
