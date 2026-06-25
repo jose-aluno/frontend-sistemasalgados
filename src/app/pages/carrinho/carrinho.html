@@ -37,12 +37,31 @@
 
             <div class="flex-1">
               <h3 class="font-bold text-gray-800">{{ item.sabor.nome }}</h3>
-              <p class="text-primary font-semibold text-sm">
-                R$ {{ item.sabor.preco.toFixed(2) }} cada
+              
+              <p class="text-gray-500 text-sm">
+                @if (item.sabor.promocao || totalPedidos() >= 5) {
+                  <span class="line-through me-1">R$ {{ item.sabor.preco.toFixed(2) }}</span>
+                  <span class="text-primary font-bold">R$ {{ calcularPrecoUnitario(item).toFixed(2) }}</span>
+                } @else {
+                  <span class="text-primary font-semibold">R$ {{ item.sabor.preco.toFixed(2) }} cada</span>
+                }
               </p>
-              @if (item.sabor.promocao) {
-                <span class="text-xs text-danger font-semibold">Promoção 20% off</span>
-              }
+
+              <div class="mt-1">
+                @if (item.sabor.promocao) {
+                  <span class="text-[11px] bg-red-100 text-danger font-bold px-2 py-0.5 rounded-full">
+                    Estratégia: Promoção (20% OFF)
+                  </span>
+                } @else if (totalPedidos() >= 5) {
+                  <span class="text-[11px] bg-green-100 text-success font-bold px-2 py-0.5 rounded-full">
+                    Estratégia: Fidelidade (10% OFF)
+                  </span>
+                } @else {
+                  <span class="text-[11px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                    Estratégia: Padrão
+                  </span>
+                }
+              </div>
             </div>
 
             <div class="flex items-center gap-2">
@@ -59,7 +78,7 @@
 
             <div class="text-right min-w-16">
               <p class="font-bold text-gray-800">
-                R$ {{ (item.sabor.preco * item.quantidade).toFixed(2) }}
+                R$ {{ (calcularPrecoUnitario(item) * item.quantidade).toFixed(2) }}
               </p>
               <button (click)="remover(item)" class="text-danger text-xs hover:underline mt-1">
                 <i class="bi bi-trash"></i> Remover
@@ -72,12 +91,16 @@
 
       <div class="bg-white rounded-2xl shadow p-6">
         <div class="flex justify-between items-center mb-4">
-          <span class="text-gray-600">Total estimado</span>
+          <span class="text-gray-600">Total garantido</span>
           <span class="text-2xl font-bold text-primary">R$ {{ total().toFixed(2) }}</span>
         </div>
-        <p class="text-xs text-gray-400 mb-4">
-          * O valor final pode variar conforme promoções e fidelidade aplicadas no servidor.
-        </p>
+        
+        @if (totalPedidos() >= 5) {
+          <p class="text-xs text-success mb-4 font-semibold">
+            <i class="bi bi-star-fill me-1"></i> Parabéns! Você possui o status de Cliente Fiel (+5 pedidos efetuados) e recebeu descontos automáticos nos produtos regulares.
+          </p>
+        }
+
         <button
           (click)="finalizar()"
           [disabled]="carregando()"

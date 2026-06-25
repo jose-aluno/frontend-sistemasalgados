@@ -12,33 +12,55 @@ interface ItemCarrinho {
 @Component({
   selector: 'app-carrinho',
   imports: [CommonModule],
-  templateUrl: './carrinho.html'
+  templateUrl: './carrinho.html',
 })
 export class Carrinho implements OnInit {
   itens = signal<ItemCarrinho[]>([]);
+  totalPedidos = signal<number>(0);
   carregando = signal(false);
   erro = signal('');
   sucesso = signal('');
 
-  // Computed é a forma ideal de substituir getters no padrão Signal
-  total = computed(() => 
-    this.itens().reduce((acc, i) => acc + i.sabor.preco * i.quantidade, 0)
-  );
+  total = computed(() => {
+    return this.itens().reduce((acc, item) => {
+      return acc + this.calcularPrecoUnitario(item) * item.quantidade;
+    }, 0);
+  });
 
   constructor(
     private pedidoService: Pedido,
-    public router: Router
+    public router: Router,
   ) {}
 
   ngOnInit() {
     const salvo = JSON.parse(localStorage.getItem('carrinho') || '[]');
     this.itens.set(salvo);
+
+    this.pedidoService.historico().subscribe({
+      next: (res: any) => {
+        this.totalPedidos.set(res.totalPedidos || 0);
+      },
+      error: () => {
+        this.totalPedidos.set(0);
+      },
+    });
+  }
+
+  calcularPrecoUnitario(item: ItemCarrinho): number {
+    if (item.sabor.promocao) {
+      return item.sabor.preco * 0.8;
+    } else if (this.totalPedidos() >= 5) {
+      return item.sabor.preco * 0.9;
+    }
+    return item.sabor.preco;
   }
 
   aumentar(item: ItemCarrinho) {
     if (item.quantidade < item.sabor.quantidadeEstoque) {
-      this.itens.update(lista =>
-        lista.map(i => i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade + 1 } : i)
+      this.itens.update((lista) =>
+        lista.map((i) =>
+          i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade + 1 } : i,
+        ),
       );
       this.salvar();
     }
@@ -46,15 +68,17 @@ export class Carrinho implements OnInit {
 
   diminuir(item: ItemCarrinho) {
     if (item.quantidade > 1) {
-      this.itens.update(lista =>
-        lista.map(i => i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade - 1 } : i)
+      this.itens.update((lista) =>
+        lista.map((i) =>
+          i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade - 1 } : i,
+        ),
       );
       this.salvar();
     }
   }
 
   remover(item: ItemCarrinho) {
-    this.itens.update(lista => lista.filter(i => i.sabor.id !== item.sabor.id));
+    this.itens.update((lista) => lista.filter((i) => i.sabor.id !== item.sabor.id));
     this.salvar();
   }
 
@@ -69,14 +93,12 @@ export class Carrinho implements OnInit {
     this.erro.set('');
     this.sucesso.set('');
 
-    const pedidos = this.itens().map(i =>
-      this.pedidoService.realizar(i.sabor.id, i.quantidade)
-    );
+    const pedidos = this.itens().map((i) => this.pedidoService.realizar(i.sabor.id, i.quantidade));
 
     let concluidos = 0;
     let erros = 0;
 
-    pedidos.forEach(pedido => {
+    pedidos.forEach((pedido) => {
       pedido.subscribe({
         next: () => {
           concluidos++;
@@ -97,7 +119,7 @@ export class Carrinho implements OnInit {
             this.carregando.set(false);
             this.erro.set('Erro ao realizar pedidos. Tente novamente.');
           }
-        }
+        },
       });
     });
   }
