@@ -37,14 +37,18 @@ export class Carrinho implements OnInit {
 
   aumentar(item: ItemCarrinho) {
     if (item.quantidade < item.sabor.quantidadeEstoque) {
-      item.quantidade++;
+      this.itens.update(lista =>
+        lista.map(i => i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade + 1 } : i)
+      );
       this.salvar();
     }
   }
 
   diminuir(item: ItemCarrinho) {
     if (item.quantidade > 1) {
-      item.quantidade--;
+      this.itens.update(lista =>
+        lista.map(i => i.sabor.id === item.sabor.id ? { ...i, quantidade: i.quantidade - 1 } : i)
+      );
       this.salvar();
     }
   }
